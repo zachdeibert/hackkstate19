@@ -42,7 +42,7 @@ void init_interrupt(void) {
 }
 
 void pause_print(void){
-    char* string = "G0 Z10";
+    char* string = "G0 Z10\n";
     write(fd,string,strlen(string));
 }
 
