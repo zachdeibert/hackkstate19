@@ -13,6 +13,9 @@ int main(void) {
     // printf("Hello World \n");
     init_wiringpi();
     init_interrupt();
+    while(1){
+        sleep(50000);
+    }
     return EXIT_SUCCESS;
 }
 
