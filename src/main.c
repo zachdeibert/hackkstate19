@@ -26,7 +26,7 @@ void init_wiringpi(void) {
 }
 
 void init_interrupt(void) {
-    wiringPiISR(opto, INT_EDGE_FALLING, print_val);
+    wiringPiISR(opto, INT_EDGE_RISING, print_val);
 }
 
 void print_val(void){
