@@ -3,7 +3,7 @@
 #include <wiringPi.h>
 #include <unistd.h>
 
-const int opto = 21;
+const int opto = 29;
 
 void init_wiringpi(void);
 
