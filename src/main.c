@@ -9,19 +9,35 @@
 #include <time.h>
 #include <twilio.h>
 
+config_t parametersoutput;
 const int opto = 29;
+const int timerinterval = 300;
+char* readfile;
 int fd;
 time_t lasttime;
-const int timerinterval = 300;
-config_t parametersoutput;
 
+/* init_wiringpi - initializes the wiringpi library on the optointerruptor pin (Pin 40 on the Pi) */
 void init_wiringpi(void);
-void init_interrupt(void);
-void pause_print(void);
-void openfile(uint32_t, char*);
-void readthefile(char*);
 
-char* readfile;
+/* init_interrupt - enables the wiringpi interrupt service routine on the rising edge of the optointerruptor data pin*/
+void init_interrupt(void);
+
+/*  pause_print - check the local time versus the last time the interrupt fired in intervals of 5 minutes
+    this makes sure the Gcode commands do not pause and unpause every time the ISR fires once the filament is removed. */
+void pause_print(void);
+
+/* openfile - opens the serial port communication between the RPi and 3D Printer, 
+    Parameters:
+        baudrate - the baud rate of the printer
+        serialportfile - the port file to open
+*/
+void openfile(uint32_t, char*);
+
+/* readthefile - reads the Gcode file to run commands in the event of a pause.
+    Parameters:
+        readthefile - Gcode file 
+*/
+void readthefile(char*);
 
 int main(int parameter_num, char** values) {
     parametersoutput = config_settings(parameter_num,values);
@@ -55,7 +71,7 @@ void pause_print(void){
     {
         write(fd,readfile,strlen(readfile));
         printf("Paused.");
-        twilio_send_message(parametersoutput.account_sid,parametersoutput.auth_token,"SOS! Your print has run out of filament!",parametersoutput.from_number,parametersoutput.to_number,NULL,FALSE);
+        twilio_send_message(parametersoutput.account_sid,parametersoutput.auth_token,"SOS! Your 3D printer has run out of filament!",parametersoutput.from_number,parametersoutput.to_number,NULL,FALSE);
     }
     lasttime = t;
 }
@@ -136,28 +152,26 @@ void openfile(uint32_t baudrate, char* serialportfile){
     cfsetospeed(&tty,speedthing);
     cfsetispeed(&tty,speedthing);
 
-    tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
-        // disable IGNBRK for mismatched speed tests; otherwise receive break
-        // as \000 chars
-        tty.c_iflag &= ~IGNBRK;         // disable break processing
-        tty.c_lflag = 0;                // no signaling chars, no echo,
-                                        // no canonical processing
-        tty.c_oflag = 0;                // no remapping, no delays
-        tty.c_cc[VMIN]  = 0;            // read doesn't block
-        tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
+    tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;     
+    tty.c_iflag &= ~IGNBRK;
+    tty.c_lflag = 0;                
+                                        
+    tty.c_oflag = 0;                
+    tty.c_cc[VMIN]  = 0;            
+    tty.c_cc[VTIME] = 5;            
 
-        tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
+    tty.c_iflag &= ~(IXON | IXOFF | IXANY); 
 
-        tty.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
-                                        // enable reading
-        tty.c_cflag &= ~(PARENB | PARODD);      // shut off parity
-        tty.c_cflag |= 0;
-        tty.c_cflag &= ~CSTOPB;
-        
-        if(tcsetattr(fd,TCSANOW,&tty) != 0){
-            perror("tcsetattr");
-            exit(1);
-        }
+    tty.c_cflag |= (CLOCAL | CREAD);
+                                    
+    tty.c_cflag &= ~(PARENB | PARODD);      
+    tty.c_cflag |= 0;
+    tty.c_cflag &= ~CSTOPB;
+    
+    if(tcsetattr(fd,TCSANOW,&tty) != 0){
+        perror("tcsetattr");
+        exit(1);
+    }
 }
 
 void readthefile(char* gcode_file){
@@ -175,8 +189,6 @@ void readthefile(char* gcode_file){
     fread(readfile,1,filesize,fptr);
     readfile[filesize] = 0;
     fclose(fptr);
-
-
 }
 
 
