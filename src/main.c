@@ -52,7 +52,7 @@ void pause_print(void){
     if((t - lasttime) >= timerinterval)
     {
         write(fd,readfile,strlen(readfile));
-        printf("I am trying to pause");
+        printf("I am trying to pause\n");
     }
     lasttime = t;
 }
