@@ -26,7 +26,6 @@ int main(int parameter_num, char** values) {
     }
     readthefile(parametersoutput.gcode_file);
     openfile(parametersoutput.baud,parametersoutput.port);
-    pause_print();
     init_wiringpi();
     init_interrupt();
     while(1){
