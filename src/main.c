@@ -54,6 +54,7 @@ void pause_print(void){
     if((t - lasttime) >= timerinterval)
     {
         write(fd,readfile,strlen(readfile));
+        printf("Paused.");
         twilio_send_message(parametersoutput.account_sid,parametersoutput.auth_token,"SOS! Your print has run out of filament!",parametersoutput.from_number,parametersoutput.to_number,NULL,FALSE);
     }
     lasttime = t;
