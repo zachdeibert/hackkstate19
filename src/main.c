@@ -7,11 +7,13 @@
 #include <termios.h>
 #include <string.h>
 #include <time.h>
+#include <twilio.h>
 
 const int opto = 29;
 int fd;
 time_t lasttime;
 const int timerinterval = 300;
+config_t parametersoutput;
 
 void init_wiringpi(void);
 void init_interrupt(void);
@@ -22,7 +24,7 @@ void readthefile(char*);
 char* readfile;
 
 int main(int parameter_num, char** values) {
-    config_t parametersoutput = config_settings(parameter_num,values);
+    parametersoutput = config_settings(parameter_num,values);
     if( parametersoutput.printhelp == 1){
         printhelp();
         return EXIT_FAILURE;
@@ -52,7 +54,7 @@ void pause_print(void){
     if((t - lasttime) >= timerinterval)
     {
         write(fd,readfile,strlen(readfile));
-        printf("I am trying to pause\n");
+        twilio_send_message(parametersoutput.account_sid,parametersoutput.auth_token,"SOS! Your print has run out of filament!",parametersoutput.from_number,parametersoutput.to_number,NULL,FALSE);
     }
     lasttime = t;
 }
