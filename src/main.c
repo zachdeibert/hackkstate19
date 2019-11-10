@@ -6,9 +6,12 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <string.h>
+#include <time.h>
 
 const int opto = 29;
 int fd;
+time_t lasttime;
+const int timerinterval = 300;
 
 void init_wiringpi(void);
 void init_interrupt(void);
@@ -45,8 +48,12 @@ void init_interrupt(void) {
 }
 
 void pause_print(void){
-    write(fd,readfile,strlen(readfile));
-    
+    time_t t = time(NULL);
+    if((t - lasttime) >= timerinterval)
+    {
+        write(fd,readfile,strlen(readfile));
+    }
+    lasttime = t;
 }
 
 void openfile(uint32_t baudrate, char* serialportfile){
