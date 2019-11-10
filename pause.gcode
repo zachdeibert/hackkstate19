@@ -1,7 +1,7 @@
 M25
-M83 ;relative mode
+M83
 G0 Z5 E-5
-M82 ;absolute mode
+M82
 G0 X0 Y0 
 M83
 G0 Z-5
