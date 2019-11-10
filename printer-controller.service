@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/hackathon19/build
-ExecStart=/bin/bash /home/pi/hackathon19/service.sh
+WorkingDirectory=/home/pi/hackkstate19/build
+ExecStart=/bin/bash /home/pi/hackkstate19/service.sh
 Restart=on-failure
 
 [Install]
