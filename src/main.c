@@ -14,6 +14,9 @@ void init_wiringpi(void);
 void init_interrupt(void);
 void pause_print(void);
 void openfile(uint32_t, char*);
+void readthefile(char*);
+
+char* readfile;
 
 int main(int parameter_num, char** values) {
     config_t parametersoutput = config_settings(parameter_num,values);
@@ -21,6 +24,7 @@ int main(int parameter_num, char** values) {
         printhelp();
         return EXIT_FAILURE;
     }
+    readthefile(parametersoutput.gcode_file);
     openfile(parametersoutput.baud,parametersoutput.port);
     pause_print();
     init_wiringpi();
@@ -42,8 +46,8 @@ void init_interrupt(void) {
 }
 
 void pause_print(void){
-    char* string = "G0 Z10\n";
-    write(fd,string,strlen(string));
+    write(fd,readfile,strlen(readfile));
+    
 }
 
 void openfile(uint32_t baudrate, char* serialportfile){
@@ -146,6 +150,24 @@ void openfile(uint32_t baudrate, char* serialportfile){
         }
 }
 
+void readthefile(char* gcode_file){
+    FILE *fptr = fopen(gcode_file,"r");
+    if(fptr == NULL){
+        perror("fopen");
+        exit(1);
+    }
+    fseek(fptr,0,SEEK_END);
+    int filesize = ftell(fptr);
+
+    fseek(fptr,0,SEEK_SET);
+    readfile = malloc(filesize+1);
+
+    fread(readfile,1,filesize,fptr);
+    readfile[filesize] = 0;
+    fclose(fptr);
+
+
+}
 
 
 
